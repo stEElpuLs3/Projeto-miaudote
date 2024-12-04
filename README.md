@@ -15,7 +15,7 @@ Acesso Geral:
     Tela Inicial: Feed de rolagem infinita com animais disponíveis para adoção.
     Tela de Busca por Região: Pesquise pets utilizando geolocalização.
 
-Funcionalidades Autenticadas:
+✅Funcionalidades Autenticadas:
 
     Tela de Cadastro: Registre novos pets disponíveis para adoção.
     Perfil do Usuário: Salve pets como favoritos e visualize seu histórico.
