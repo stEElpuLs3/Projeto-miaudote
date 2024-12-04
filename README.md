@@ -1,6 +1,9 @@
 Miaudote 🐾
 
-O Miaudote é uma plataforma desenvolvida para facilitar a adoção responsável de animais. O projeto foi idealizado e implementado como parte de um trabalho extensionista pelos alunos Eugênio Domingues, Eduardo Romeu, e Vitor Pagotto, do curso de Análise e Desenvolvimento de Sistemas. A aplicação conecta protetores e futuros tutores de pets, oferecendo recursos para cadastro, busca, e acompanhamento de adoções.
+O Miaudote é uma plataforma desenvolvida para facilitar a adoção responsável de animais. O projeto foi idealizado e implementado como parte de um trabalho extensionista pelos alunos Eugênio Domingues, Eduardo Romeu, e Vitor Pagotto, do curso de Análise e Desenvolvimento de Sistemas. 
+
+A aplicação conecta protetores e futuros tutores de pets, oferecendo recursos para cadastro, busca, e acompanhamento de adoções.
+
 💻 Tecnologias Utilizadas
 
     Frontend: React, Material UI (MUI)
