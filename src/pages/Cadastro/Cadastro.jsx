@@ -35,13 +35,36 @@ export default function Cadastro() {
     const [email, setEmail] = React.useState("");
     const [senha, setSenha] = React.useState("");
 
-    function Cadastrar(e) {
-        handleOpen();
-        e.preventDefault();
-        const newUser = new UserClass(nome, telefone, email, senha, "", []);
-        
-        localStorage.setItem("user", JSON.stringify(newUser));
+    async function Cadastrar(e) {
+    e.preventDefault();
+    
+    const newUser = {
+        nome,
+        telefone,
+        email,
+        senha,
+        historico: [], // se quiser manter esse campo
+    };
+
+    try {
+        // Aqui chamamos a rota do backend
+        const res = await fetch('/api/usuarios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newUser)
+        });
+
+        if (res.ok) {
+            handleOpen(); // modal de sucesso
+        } else {
+            alert("Erro ao cadastrar usuário");
+        }
+
+    } catch (error) {
+        console.log(error);
+        alert("Erro ao conectar com o servidor");
     }
+}
 
     return (
         <Container maxWidth="xs">
