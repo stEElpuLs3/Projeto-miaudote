@@ -1,135 +1,98 @@
-import TextField from '@mui/material/TextField';
-import Box from '@mui/material/Box';
-import { Container, Stack } from "@mui/material";
-import * as React from 'react';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import Modal from '@mui/material/Modal';
-import { UserClass } from "../../UserClass";
+// src/components/Cadastro/Cadastro.jsx
+import React, { useState } from 'react';
+import { Container, Box, Stack, Button, Typography, TextField, Modal, Backdrop, Fade } from '@mui/material';
+import axios from 'axios';
 
 const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  borderRadius: 4,
+  boxShadow: 24,
+  p: 4,
 };
 
+function Cadastro() {
+  // Estados do formulário
+  const [nome, setNome] = useState('');
+  const [telefone, setTelefone] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
 
+  // Estado do Modal
+  const [open, setOpen] = useState(false);
 
-export default function Cadastro() {
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => {
-        setOpen(false);
-        window.location.href = "/";
-    };
+  const handleOpen = () => {
+    document.activeElement.blur(); // Remove foco do botão antes de abrir o Modal
+    setOpen(true);
+  };
 
-    // Forms
-    const [nome, setNome] = React.useState("");
-    const [telefone, setTelefone] = React.useState("");
-    const [email, setEmail] = React.useState("");
-    const [senha, setSenha] = React.useState("");
+  const handleClose = () => setOpen(false);
 
-    async function Cadastrar(e) {
-    e.preventDefault();
-    
-    const newUser = {
+  const handleCadastrar = async () => {
+    try {
+      await axios.post('http://localhost:3001/api/usuarios', {
         nome,
         telefone,
         email,
         senha,
-        historico: [], // se quiser manter esse campo
-    };
+        historico: []
+      });
 
-    try {
-        // Aqui chamamos a rota do backend
-        const res = await fetch('/api/usuarios', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newUser)
-        });
+      // Limpa campos após cadastro
+      setNome('');
+      setTelefone('');
+      setEmail('');
+      setSenha('');
 
-        if (res.ok) {
-            handleOpen(); // modal de sucesso
-        } else {
-            alert("Erro ao cadastrar usuário");
-        }
-
-    } catch (error) {
-        console.log(error);
-        alert("Erro ao conectar com o servidor");
+      handleOpen(); // Abre modal de sucesso
+    } catch (err) {
+      console.error('Erro ao cadastrar:', err);
+      alert('Erro ao cadastrar usuário!');
     }
+  };
+
+  return (
+    <Container maxWidth="sm">
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h4" align="center" gutterBottom>
+          Cadastro de Usuário
+        </Typography>
+        <Stack spacing={2}>
+          <TextField label="Nome" value={nome} onChange={(e) => setNome(e.target.value)} />
+          <TextField label="Telefone" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
+          <TextField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <TextField label="Senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
+          <Button variant="contained" onClick={handleCadastrar}>Cadastrar</Button>
+        </Stack>
+      </Box>
+
+      {/* Modal de sucesso */}
+      <Modal
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{ timeout: 500 }}
+        aria-labelledby="modal-sucesso"
+        aria-describedby="modal-mensagem"
+      >
+        <Fade in={open}>
+          <Box sx={style}>
+            <Typography id="modal-sucesso" variant="h6">
+              Cadastro realizado com sucesso!
+            </Typography>
+            <Button onClick={handleClose} sx={{ mt: 2 }} variant="contained">
+              Fechar
+            </Button>
+          </Box>
+        </Fade>
+      </Modal>
+    </Container>
+  );
 }
 
-    return (
-        <Container maxWidth="xs">
-            <Typography variant="h6" component="h2">CADASTRO DE USUÁRIO</Typography>
-            <Stack
-                component="form"
-                sx={{ display: "flex", alignItems: "center", '& .MuiTextField-root': { m: 1, width: '25ch' } }}
-                onSubmit={Cadastrar}
-            >
-                <TextField
-                    id="outlined"
-                    label="Nome"
-                    defaultValue=""
-                    required
-                    sx={{minWidth: '100%'}}
-                    onChange={e => { setNome(e.target.value) }}
-                />
-
-                <TextField
-                    id="outlined-number"
-                    label="Telefone"
-                    type="tel"
-                    required
-                    sx={{minWidth: '100%'}}
-                    onChange={e => { setTelefone(e.target.value) }}
-                />
-
-                <TextField
-                    id="outlined-email"
-                    label="Email"
-                    type="mail"
-                    required
-                    sx={{minWidth: '100%'}}
-                    onChange={e => { setEmail(e.target.value) }}
-                />
-
-                <TextField
-                    id="outlined-password-input"
-                    label="Senha"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    sx={{minWidth: '100%'}}
-                    onChange={e => { setSenha(e.target.value) }}
-                />
-                <Button variant="contained" type="submit" fullWidth>Confirmar</Button>
-            </Stack>
-            <div>
-                <Modal
-                    open={open}
-                    onClose={handleClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                >
-                    <Box sx={style}>
-                        <Typography id="modal-modal-title" variant="h6" component="h2">
-                            Parabens!
-                        </Typography>
-                        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                            Seu cadastro foi realizado com sucesso!
-                        </Typography>
-                        <Button variant='contained' onClick={handleClose} sx={{ mt: 2 }}>Fechar</Button>
-                    </Box>
-                </Modal>
-            </div>
-        </Container>
-    );
-}
+export default Cadastro;
