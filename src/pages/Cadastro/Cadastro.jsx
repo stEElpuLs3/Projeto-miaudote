@@ -1,9 +1,9 @@
 // src/components/Cadastro/Cadastro.jsx
-import React, { useState } from 'react';
-import { Container, Box, Stack, Button, Typography, TextField, Modal, Backdrop, Fade } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Container, Box, Stack, Button, Typography, TextField, Modal, Backdrop, Fade, List, ListItem, ListItemText } from '@mui/material';
 import axios from 'axios';
 
-const style = {
+const styleModal = {
   position: 'absolute',
   top: '50%',
   left: '50%',
@@ -16,21 +16,30 @@ const style = {
 };
 
 function Cadastro() {
-  // Estados do formulário
   const [nome, setNome] = useState('');
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-
-  // Estado do Modal
   const [open, setOpen] = useState(false);
+  const [usuarios, setUsuarios] = useState([]);
 
-  const handleOpen = () => {
-    document.activeElement.blur(); // Remove foco do botão antes de abrir o Modal
-    setOpen(true);
-  };
-
+  // Funções do Modal
+  const handleOpen = () => { document.activeElement.blur(); setOpen(true); };
   const handleClose = () => setOpen(false);
+
+  // Buscar usuários ao carregar a página
+  useEffect(() => {
+    fetchUsuarios();
+  }, []);
+
+  const fetchUsuarios = async () => {
+    try {
+      const res = await axios.get('http://localhost:3001/api/usuarios');
+      setUsuarios(res.data);
+    } catch (err) {
+      console.error('Erro ao buscar usuários:', err);
+    }
+  };
 
   const handleCadastrar = async () => {
     try {
@@ -42,13 +51,14 @@ function Cadastro() {
         historico: []
       });
 
-      // Limpa campos após cadastro
+      // Limpar campos
       setNome('');
       setTelefone('');
       setEmail('');
       setSenha('');
 
-      handleOpen(); // Abre modal de sucesso
+      handleOpen();       // Abrir modal de sucesso
+      fetchUsuarios();    // Atualizar lista de usuários
     } catch (err) {
       console.error('Erro ao cadastrar:', err);
       alert('Erro ao cadastrar usuário!');
@@ -68,6 +78,17 @@ function Cadastro() {
           <TextField label="Senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
           <Button variant="contained" onClick={handleCadastrar}>Cadastrar</Button>
         </Stack>
+
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h6">Usuários cadastrados:</Typography>
+          <List>
+            {usuarios.map((user) => (
+              <ListItem key={user._id}>
+                <ListItemText primary={user.nome} secondary={user.email} />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
       </Box>
 
       {/* Modal de sucesso */}
@@ -81,7 +102,7 @@ function Cadastro() {
         aria-describedby="modal-mensagem"
       >
         <Fade in={open}>
-          <Box sx={style}>
+          <Box sx={styleModal}>
             <Typography id="modal-sucesso" variant="h6">
               Cadastro realizado com sucesso!
             </Typography>

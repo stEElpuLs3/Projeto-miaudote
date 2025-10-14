@@ -50,4 +50,15 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.post('/login', async (req, res) => {
+  await connectDB();
+  const { email, senha } = req.body;
+  const user = await User.findOne({ email, senha });
+  if (user) {
+    res.status(200).json({ mensagem: 'Login sucesso!', user });
+  } else {
+    res.status(401).json({ mensagem: 'Usuário ou senha incorreto' });
+  }
+});
+
 module.exports = router;
