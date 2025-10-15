@@ -1,119 +1,100 @@
-// src/components/Cadastro/Cadastro.jsx
-import React, { useState, useEffect } from 'react';
-import { Container, Box, Stack, Button, Typography, TextField, Modal, Backdrop, Fade, List, ListItem, ListItemText } from '@mui/material';
+import React, { useState } from 'react';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import { Container, Stack } from "@mui/material";
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
 import axios from 'axios';
+import LoginForm from '../../components/LoginForm/LoginForm'; // caminho corrigido
 
-const styleModal = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  borderRadius: 4,
-  boxShadow: 24,
-  p: 4,
-};
-
-function Cadastro() {
-  const [nome, setNome] = useState('');
-  const [telefone, setTelefone] = useState('');
+const Cadastro = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [open, setOpen] = useState(false);
-  const [usuarios, setUsuarios] = useState([]);
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [avatar, setAvatar] = useState('');
 
-  // Funções do Modal
-  const handleOpen = () => { document.activeElement.blur(); setOpen(true); };
-  const handleClose = () => setOpen(false);
+  const [openLoginModal, setOpenLoginModal] = useState(false);
 
-  // Buscar usuários ao carregar a página
-  useEffect(() => {
-    fetchUsuarios();
-  }, []);
-
-  const fetchUsuarios = async () => {
-    try {
-      const res = await axios.get('http://localhost:3001/api/usuarios');
-      setUsuarios(res.data);
-    } catch (err) {
-      console.error('Erro ao buscar usuários:', err);
-    }
+  // Abrir modal de login
+  const handleOpenLogin = () => {
+    console.log('Abrindo modal de login');
+    setOpenLoginModal(true);
   };
 
-  const handleCadastrar = async () => {
+  // Fechar modal de login
+  const handleCloseLogin = () => {
+    console.log('Fechando modal de login');
+    setOpenLoginModal(false);
+  };
+
+  // Função de cadastro
+  const handleCadastro = async () => {
+    console.log('Tentando cadastrar usuário com os dados:', { name, email, password, phone, avatar });
+
     try {
-      await axios.post('http://localhost:3001/api/usuarios', {
-        nome,
-        telefone,
+      const response = await axios.post('http://localhost:3001/api/usuarios', {
+        name,
         email,
-        senha,
-        historico: []
+        password,
+        phone,
+        avatar
       });
 
-      // Limpar campos
-      setNome('');
-      setTelefone('');
-      setEmail('');
-      setSenha('');
+      console.log('Resposta do backend:', response.data);
+      alert(response.data.message);
 
-      handleOpen();       // Abrir modal de sucesso
-      fetchUsuarios();    // Atualizar lista de usuários
-    } catch (err) {
-      console.error('Erro ao cadastrar:', err);
-      alert('Erro ao cadastrar usuário!');
+      // Limpar formulário
+      setName('');
+      setEmail('');
+      setPassword('');
+      setPhone('');
+      setAvatar('');
+
+    } catch (error) {
+      console.error('Erro ao cadastrar usuário:', error.response ? error.response.data : error);
+      alert(error.response?.data?.message || 'Erro ao cadastrar usuário');
     }
   };
 
   return (
     <Container maxWidth="sm">
-      <Box sx={{ mt: 4 }}>
+      <Box sx={{ mt: 5 }}>
         <Typography variant="h4" align="center" gutterBottom>
-          Cadastro de Usuário
+          Cadastro
         </Typography>
-        <Stack spacing={2}>
-          <TextField label="Nome" value={nome} onChange={(e) => setNome(e.target.value)} />
-          <TextField label="Telefone" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
-          <TextField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <TextField label="Senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
-          <Button variant="contained" onClick={handleCadastrar}>Cadastrar</Button>
-        </Stack>
 
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h6">Usuários cadastrados:</Typography>
-          <List>
-            {usuarios.map((user) => (
-              <ListItem key={user._id}>
-                <ListItemText primary={user.nome} secondary={user.email} />
-              </ListItem>
-            ))}
-          </List>
-        </Box>
+        <Stack spacing={2}>
+          <TextField label="Nome" value={name} onChange={(e) => setName(e.target.value)} fullWidth />
+          <TextField label="Email" value={email} onChange={(e) => setEmail(e.target.value)} fullWidth />
+          <TextField label="Senha" type="password" value={password} onChange={(e) => setPassword(e.target.value)} fullWidth />
+          <TextField label="Telefone" value={phone} onChange={(e) => setPhone(e.target.value)} fullWidth />
+          <TextField label="Avatar (URL)" value={avatar} onChange={(e) => setAvatar(e.target.value)} fullWidth />
+
+          <Button variant="contained" color="primary" onClick={handleCadastro}>
+            Cadastrar
+          </Button>
+
+          <Button variant="outlined" onClick={handleOpenLogin}>
+            Já tenho uma conta
+          </Button>
+        </Stack>
       </Box>
 
-      {/* Modal de sucesso */}
+      {/* Modal de login */}
       <Modal
-        open={open}
-        onClose={handleClose}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{ timeout: 500 }}
-        aria-labelledby="modal-sucesso"
-        aria-describedby="modal-mensagem"
+        open={openLoginModal}
+        onClose={handleCloseLogin}
+        aria-labelledby="modal-login"
+        aria-describedby="modal-login-form"
       >
-        <Fade in={open}>
-          <Box sx={styleModal}>
-            <Typography id="modal-sucesso" variant="h6">
-              Cadastro realizado com sucesso!
-            </Typography>
-            <Button onClick={handleClose} sx={{ mt: 2 }} variant="contained">
-              Fechar
-            </Button>
-          </Box>
-        </Fade>
+        <Box sx={{ margin: '10% auto', padding: '20px', backgroundColor: 'white', width: '400px' }}>
+          <LoginForm closeModal={handleCloseLogin} />
+        </Box>
       </Modal>
     </Container>
   );
-}
+};
 
 export default Cadastro;

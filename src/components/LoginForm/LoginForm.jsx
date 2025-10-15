@@ -1,57 +1,77 @@
-import react, { useState } from "react";
-import { FormControl, Typography, Button, Stack, Link, Box } from "@mui/material";
-import LockIcon from '@mui/icons-material/Lock';
-import IconInput from "../IconInput/IconInput";
-import { UserClass } from "../../UserClass";
+import React, { useState } from 'react';
+import axios from 'axios';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
-export default function LoginForm() {
-    const [login, setLogin] = useState("")
-    const [password, setPassword] = useState("")
-    
-    function Logar() {
-        const user = JSON.parse(localStorage.getItem("user"));
-        console.log(user);
-        console.log(`login: ${login}, password: ${password}`);
+const LoginForm = ({ closeModal }) => {
+  const [identifier, setIdentifier] = useState(''); // email ou nome
+  const [password, setPassword] = useState('');
+  const [erro, setErro] = useState('');
 
-        if(!user){
-            alert("Usuário ou senha incorretos, tente novamente!");
-            return;
-        }
+  const handleLogin = async () => {
+    console.log('Tentando login com:', { identifier, password });
 
-        if((login === user.name || login === user.email || login === user.phone) && user.password === password){
-            user.logado = true;
-            UserClass.SaveUser(user);
-            window.location.href = "/";
-            console.log(user);
-        } else {
-            alert("Usuário ou senha incorretos, tente novamente!");
-        }
+    if (!identifier || !password) {
+      setErro('Preencha todos os campos!');
+      return;
     }
 
-    return (
-        <FormControl as={Stack} spacing={2}>
-            <Typography id="modal-modal-title" variant="h5" component="h2">
-                Entrar
-            </Typography>
-            <IconInput
-                label="Usuário"
-                placeholder="Email ou telefone"
-                required
-                onChange={e => { setLogin(e.target.value) }}
-            />
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: "flex-end" }}>
-                <IconInput
-                    label="Senha"
-                    placeholder="Insira sua senha"
-                    type="password"
-                    icon={<LockIcon />}
-                    required
-                    onChange={e => { setPassword(e.target.value) }}
-                />
-                <Link href="#" underline="hover" variant="subtitle2">Esqueci minha senha</Link>
-            </Box>
-            <Button variant="contained" onClick={Logar}>Continuar</Button>
-            <Button component="a" href="/cadastro-usuario" variant="outlined">Não sou cadastrado</Button>
-        </FormControl>
-    )
-}
+    try {
+      const response = await axios.post('http://localhost:3001/api/usuarios/login', {
+        identifier,
+        senha: password, // backend espera "senha"
+      });
+
+      console.log('Resposta do backend:', response.data);
+
+      if (response.data?.mensagem === 'Login sucesso') {
+        localStorage.setItem('user', JSON.stringify({ ...response.data.user, logado: true }));
+
+        // Fecha o modal corretamente
+        if (typeof closeModal === 'function') closeModal();
+
+        setIdentifier('');
+        setPassword('');
+        setErro('');
+        window.location.reload();
+      } else {
+        setErro('Credenciais inválidas');
+      }
+    } catch (error) {
+      console.error('Erro no login:', error.response ? error.response.data : error);
+      setErro(error.response?.data?.mensagem || 'Erro no login');
+    }
+  };
+
+  return (
+    <Stack spacing={2}>
+      <TextField
+        label="Email ou Nome"
+        value={identifier}
+        onChange={(e) => setIdentifier(e.target.value)}
+        fullWidth
+      />
+      <TextField
+        label="Senha"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        fullWidth
+      />
+
+      {erro && (
+        <Typography color="error" textAlign="center">
+          {erro}
+        </Typography>
+      )}
+
+      <Button variant="contained" color="primary" onClick={handleLogin}>
+        Entrar
+      </Button>
+    </Stack>
+  );
+};
+
+export default LoginForm;

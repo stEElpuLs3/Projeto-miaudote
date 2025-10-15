@@ -8,6 +8,7 @@ import RegisterPet from './pages/RegisterPet';
 import SearchPets from './pages/SearchPets';
 import SuccessStories from './pages/SuccessStories';
 import Cadastro from './pages/Cadastro/Cadastro';
+import Login from './pages/Login/Login';
 import PawPrint from './images/White_paw_print.png';
 import './styles.css';
 import './App.css';
@@ -55,7 +56,10 @@ function App() {
       <NavBar isOpenModal={isOpenModal} setOpenModal={setOpenModal} />
       <Box component="main" sx={{ p: 3, mt: 8 }}>
         <Routes>
-          <Route path="/" element={<Home isOpenModal={isOpenModal} setOpenModal={setOpenModal} />} />
+          <Route
+            path="/"
+            element={<Home isOpenModal={isOpenModal} setOpenModal={setOpenModal} />}
+          />
           <Route path="/profile" element={<Profile />} />
           <Route path="/register-pet" element={<RegisterPet />} />
           <Route path="/search-pets" element={<SearchPets />} />
