@@ -9,28 +9,36 @@ export default function LoginForm({ onClose }) {
   const [erro, setErro] = useState("");
 
   const handleLogin = async () => {
-    try {
-      const response = await axios.post("http://localhost:3001/api/usuarios/login", {
-        email,
-        senha,
-      });
+  try {
+    console.log('Tentando login com:', { email, senha }); // ← Adicione este log
+    
+    const response = await axios.post("http://localhost:3001/api/usuarios/login", {
+      email: email,
+      senha: senha, // ← Certifique-se que é 'senha'
+    });
 
-      if (response.data && response.data.usuario) {
-        localStorage.setItem(
-          "user",
-          JSON.stringify({ ...response.data.usuario, logado: true })
-        );
+    console.log('Resposta do login:', response.data); // ← Adicione este log
 
-        if (onClose) onClose(); // fecha o modal
-        window.location.reload();
-      } else {
-        setErro("Credenciais inválidas");
-      }
-    } catch (err) {
-      console.error(err);
-      setErro("Erro ao tentar fazer login");
+    if (response.data && response.data.user) {
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...response.data.user, logado: true, token: response.data.token })
+      );
+
+      console.log('Usuário salvo no localStorage:', response.data.user);
+
+      if (onClose) onClose();
+      window.location.reload();
+    } else {
+      setErro("Credenciais inválidas");
     }
-  };
+  } catch (err) {
+    console.error("Erro completo:", err);
+    console.error("Resposta do erro:", err.response?.data);
+    setErro(err.response?.data?.message || "Erro ao tentar fazer login");
+  }
+};
+
 
   return (
     <Box>
@@ -75,7 +83,7 @@ export default function LoginForm({ onClose }) {
           Não tem uma conta?{" "}
           <Link
             component={RouterLink}
-            to="/cadastro"
+            to="/cadastro-usuario"
             onClick={onClose} // fecha o modal ao clicar no link
             sx={{ 
               cursor: 'pointer',

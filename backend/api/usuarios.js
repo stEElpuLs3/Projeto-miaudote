@@ -43,24 +43,48 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, senha } = req.body;
 
+  console.log('Tentativa de login:', { email }); // ← Log para debug
+
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "Usuário não encontrado" });
+    if (!user) {
+      console.log('Usuário não encontrado:', email);
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    console.log('Usuário encontrado, verificando senha...');
 
     // Verifica senha
     const validPassword = await bcrypt.compare(senha, user.senha);
-    if (!validPassword) return res.status(401).json({ message: "Senha incorreta" });
+    if (!validPassword) {
+      console.log('Senha incorreta para:', email);
+      return res.status(401).json({ message: "Senha incorreta" });
+    }
+
+    console.log('Login bem-sucedido para:', email);
 
     // Geração do token
     const token = jwt.sign(
       { id: user._id, email: user.email },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'fallback_secret',
       { expiresIn: '1h' }
     );
 
-    res.status(200).json({ message: "Login realizado com sucesso", token, user: { nome: user.nome, email: user.email } });
+    res.status(200).json({ 
+      message: "Login realizado com sucesso", 
+      token, 
+      user: { 
+        id: user._id,
+        nome: user.nome, 
+        email: user.email 
+      } 
+    });
   } catch (error) {
-    res.status(500).json({ message: "Erro no login", error });
+    console.error('Erro completo no login:', error);
+    res.status(500).json({ 
+      message: "Erro no login", 
+      error: error.message 
+    });
   }
 });
 

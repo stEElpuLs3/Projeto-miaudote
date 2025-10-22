@@ -34,12 +34,12 @@ const Cadastro = () => {
     console.log('Tentando cadastrar usuário com os dados:', { name, email, password, phone, avatar });
 
     try {
-      const response = await axios.post('http://localhost:3001/api/usuarios', {
-        name,
-        email,
-        password,
-        phone,
-        avatar
+      const response = await axios.post('http://localhost:3001/api/usuarios/register', {
+        nome: name,
+        email: email,
+        senha: password,
+        telefone: phone,
+  
       });
 
       console.log('Resposta do backend:', response.data);

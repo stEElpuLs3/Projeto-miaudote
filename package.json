@@ -13,11 +13,11 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.12.2",
+    "bcrypt": "^6.0.0",
     "mongodb": "^6.20.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.1",
-    "react-scripts": "^0.0.0",
     "styled-components": "^6.1.13",
     "web-vitals": "^2.1.4"
   },
@@ -44,5 +44,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "react-scripts": "^5.0.1"
   }
 }
