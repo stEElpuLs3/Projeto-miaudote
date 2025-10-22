@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const upload = require('../middleware/upload'); // Importar multer
 
-
+const Pet = require('../models/Pet');
 
 router.post('/', upload.array('images', 10), async (req, res) => {
   try {
