@@ -13,6 +13,12 @@ app.use('/api/usuarios', usuariosRouter);
 // Importa as rotas dos pets
 const petsRouter = require('./api/pets');
 app.use('/api/pets', petsRouter);
+// Importa as rotas das mensagens
+const mensagensRouter = require('./api/mensagens');
+app.use('/api/mensagens', mensagensRouter);
+// Importa as rotas de email
+const emailRouter = require('./api/email');
+app.use('/api/email', emailRouter);
 
 // Conexão com o MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI, {

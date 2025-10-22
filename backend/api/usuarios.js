@@ -6,16 +6,7 @@ require('dotenv').config();
 
 const router = express.Router();
 
-// Schema do usuário
-const UserSchema = new mongoose.Schema({
-  nome: { type: String, required: true },
-  telefone: String,
-  email: { type: String, required: true, unique: true },
-  senha: { type: String, required: true },
-  historico: { type: Array, default: [] }
-});
-
-const User = mongoose.model('User', UserSchema);
+const User = require('../models/User');
 
 // Rota de cadastro
 router.post('/register', async (req, res) => {

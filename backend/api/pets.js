@@ -3,18 +3,7 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const upload = require('../middleware/upload'); // Importar multer
 
-// Schema do Pet (criar em models/Pet.js ou direto aqui)
-const PetSchema = new mongoose.Schema({
-  nome: { type: String, required: true },
-  especie: { type: String, required: true },
-  raca: String,
-  idade: Number,
-  descricao: String,
-  fotos: [String],
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-}, { timestamps: true });
 
-const Pet = mongoose.model('Pet', PetSchema);
 
 router.post('/', upload.array('images', 10), async (req, res) => {
   try {
