@@ -8,7 +8,7 @@ import RegisterPet from './pages/RegisterPet';
 import SearchPets from './pages/SearchPets';
 import SuccessStories from './pages/SuccessStories';
 import Cadastro from './pages/Cadastro/Cadastro';
-import Login from './pages/Login/Login';
+import LoginModal from './components/LoginModal/LoginModal';
 import PawPrint from './images/White_paw_print.png';
 import './styles.css';
 import './App.css';
@@ -54,6 +54,7 @@ function App() {
     <Router>
       <CssBaseline />
       <NavBar isOpenModal={isOpenModal} setOpenModal={setOpenModal} />
+      <LoginModal open={isOpenModal} onClose={() => setOpenModal(false)} />
       <Box component="main" sx={{ p: 3, mt: 8 }}>
         <Routes>
           <Route

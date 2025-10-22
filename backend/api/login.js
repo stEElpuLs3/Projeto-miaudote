@@ -1,7 +1,7 @@
 // backend/api/login.js
 const express = require('express');
 const router = express.Router();
-const User = require('./usuario'); // importando o model/arquivo usuario.js
+const User = require('./usuarios'); // importando o model/arquivo usuario.js
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
