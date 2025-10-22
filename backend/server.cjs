@@ -5,10 +5,14 @@ const mongoose = require('mongoose');
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use('/uploads', express.static('uploads'));
 
 // Importa apenas as rotas do usuário
 const usuariosRouter = require('./api/usuarios');
 app.use('/api/usuarios', usuariosRouter);
+// Importa as rotas dos pets
+const petsRouter = require('./api/pets');
+app.use('/api/pets', petsRouter);
 
 // Conexão com o MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI, {

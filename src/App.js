@@ -9,30 +9,10 @@ import SearchPets from './pages/SearchPets';
 import SuccessStories from './pages/SuccessStories';
 import Cadastro from './pages/Cadastro/Cadastro';
 import LoginModal from './components/LoginModal/LoginModal';
-import PawPrint from './images/White_paw_print.png';
 import './styles.css';
 import './App.css';
 
-const userModel = {
-  logado: false,
-  password: "123",
-  name: "Thiago Frango",
-  phone: "+55 11 99999-9999",
-  email: "email@example.com",
-  avatar: PawPrint,
-  favorites: [
-    {
-      name: "Luna",
-      description: "Uma gata branca muito carinhosa.",
-      image: "https://example.com/luna.jpg",
-    },
-    {
-      name: "Rex",
-      description: "Cachorro labrador enérgico.",
-      image: "https://example.com/rex.jpg",
-    },
-  ],
-};
+
 
 function App() {
   const LogOut = () => {

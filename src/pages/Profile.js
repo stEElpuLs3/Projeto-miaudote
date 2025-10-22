@@ -1,62 +1,102 @@
-import React from 'react';
-import { Container, Typography, Avatar, Grid2, Card, CardContent, CardMedia, IconButton, Button, Box } from '@mui/material';
-import FavoriteIcon from '@mui/icons-material/Favorite';
+import React, { useState, useEffect } from 'react';
+import { Container, Typography, Avatar, Grid, Button, Box } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import Rufus from '../images/rufus.avif';
+import DeleteIcon from '@mui/icons-material/Delete';
+import axios from 'axios';
+import PetCard from '../components/PetCard/PetCard';
 
 function Profile() {
-  const user = JSON.parse(localStorage.getItem("user"));
-  if(!user) return <Typography variant="h4">Usuário não encontrado</Typography>;
+  const [user, setUser] = useState(null);
+  const [userPets, setUserPets] = useState([]);
 
-  user.favorites = [{name: "Rufus", description: "Cachorro Dócil", image: Rufus}];
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    setUser(userData);
+
+    if (userData) {
+      fetchUserPets(userData.id);
+    }
+  }, []);
+
+  const handleDeletePet = async (petId) => {
+    try {
+      await axios.delete(`http://localhost:3001/api/pets/${petId}`);
+      // Atualizar a lista de pets
+      fetchUserPets(user.id);
+      alert('Pet excluído com sucesso!');
+    } catch (error) {
+      console.error('Erro ao excluir pet:', error);
+      alert('Erro ao excluir pet');
+    }
+  };
+
+  const fetchUserPets = async (userId) => {
+    try {
+      const response = await axios.get(`http://localhost:3001/api/pets/user/${userId}`);
+      setUserPets(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar pets do usuário:', error);
+    }
+  };
+
+  if (!user) return <Typography variant="h4">Usuário não encontrado</Typography>;
 
   return (
     <Container>
       {/* Cabeçalho do Perfil */}
-      <Grid2 container spacing={3} alignItems="center">
-        <Grid2>
-          <Avatar alt={user.name} src={user.avatar} sx={{ width: 100, height: 100, p: 1.5, bgcolor: 'orange' }} />
-        </Grid2>
-        <Grid2>
-          <Typography variant="h4">{user.name}</Typography>
+      <Grid container spacing={3} alignItems="center" sx={{ mb: 4 }}>
+        <Grid item>
+          <Avatar alt={user.nome} src={user.avatar} sx={{ width: 100, height: 100, bgcolor: 'orange' }} />
+        </Grid>
+        <Grid item>
+          <Typography variant="h4">{user.nome}</Typography>
           <Typography variant="body1">{user.email}</Typography>
           <Button startIcon={<EditIcon />} variant="outlined" sx={{ mt: 2 }}>
             Editar Perfil
           </Button>
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
 
-      {/* Seção de Pets Favoritos */}
-      <Typography variant="h5" component="h2" sx={{ mt: 4, mb: 2, textAlign: 'center' }}>
-        Pets Favoritos
+      {/* Seção de Meus Pets */}
+      <Typography variant="h5" component="h2" sx={{ mt: 4, mb: 3 }}>
+        Meus Pets
       </Typography>
 
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Grid2 container spacing={3} justifyContent="center">
-          {user.favorites.map((pet, index) => (
-            <Grid2 xs={12} sm={6} md={4} key={index}>
-              <Card>
-                <CardMedia
-                  component="img"
-                  height="140"
-                  image={pet.image}
-                  alt={pet.name}
-                />
-                <CardContent>
-                  <Typography gutterBottom variant="h6" component="div">
-                    {pet.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {pet.description}
-                  </Typography>
-                </CardContent>
-                <IconButton aria-label="favorite">
-                  <FavoriteIcon color="error" />
-                </IconButton>
-              </Card>
-            </Grid2>
-          ))}
-        </Grid2>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: 'center' }}>
+        {userPets.length > 0 ? (
+          userPets.map((pet) => (
+            <Box key={pet._id} sx={{ position: 'relative' }}>
+              <PetCard pet={pet} />
+              <Button 
+                variant="contained" 
+                color="error" 
+                size="small"
+                startIcon={<DeleteIcon />}
+                sx={{ 
+                  position: 'absolute', 
+                  top: 8, 
+                  right: 8, 
+                  zIndex: 10,
+                  backgroundColor: 'rgba(255,255,255,0.9)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255,235,235,0.9)'
+                  }
+                }}
+                onClick={() => {
+                  if (window.confirm(`Deseja excluir ${pet.nome}?`)) {
+                    handleDeletePet(pet._id);
+                  }
+                }}
+              >
+                Excluir
+              </Button>
+            </Box>
+          ))
+        ) : (
+          <Typography variant="body1" color="text.secondary">
+            Você ainda não cadastrou nenhum pet.
+          </Typography>
+        )}
       </Box>
     </Container>
   );
