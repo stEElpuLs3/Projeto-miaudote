@@ -11,7 +11,10 @@ router.post('/', upload.array('images', 10), async (req, res) => {
   try {
     const { nome, especie, raca, idade, descricao, user, cep, rua, numero, bairro, cidade, estado } = req.body;
     
-    // Construir objeto de endereço a partir dos campos individuais
+    console.log('=== DADOS RECEBIDOS NO CADASTRO ===');
+    console.log('Endereço:', { cep, rua, numero, bairro, cidade, estado });
+    
+    // Construir objeto de endereço
     const enderecoObj = {
       cep: cep || '',
       rua: rua || '',
@@ -21,15 +24,20 @@ router.post('/', upload.array('images', 10), async (req, res) => {
       estado: estado || ''
     };
 
+    console.log('Endereço completo:', enderecoObj);
+
     // Converter endereço para coordenadas
     let coordenadas = null;
     if (enderecoObj.rua && enderecoObj.cidade) {
       try {
+        console.log('Chamando geocoding service...');
         coordenadas = await geocodingService.geocodeEndereco(enderecoObj);
+        console.log('✅ Geocoding SUCESSO:', coordenadas);
       } catch (geocodeError) {
-        console.log('Erro no geocoding, continuando sem coordenadas:', geocodeError);
-        // Continua sem coordenadas, não quebra o cadastro
+        console.log('❌ Geocoding ERRO:', geocodeError.message);
       }
+    } else {
+      console.log('❌ Dados de endereço insuficientes para geocoding');
     }
 
     // Pegar URLs das imagens
