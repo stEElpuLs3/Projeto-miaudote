@@ -19,6 +19,9 @@ app.use('/api/mensagens', mensagensRouter);
 // Importa as rotas de email
 const emailRouter = require('./api/email');
 app.use('/api/email', emailRouter);
+// Importa as rotas de favoritos
+const favoritosRouter = require('./api/favoritos');
+app.use('/api/favoritos', favoritosRouter);
 
 // Conexão com o MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI, {

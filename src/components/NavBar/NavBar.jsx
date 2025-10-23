@@ -19,7 +19,8 @@ const paginas = [
     {label:"Cadastrar Pet", href:"/register-pet", requireLogin:true},
     {label:"Buscar Pets", href:"/search-pets", requireLogin:false},
     {label:"Adoções Concluídas", href:"/success-stories", requireLogin:false},
-    {label:"Mensagens", href:"/mensagens", requireLogin:true}, // NOVA PÁGINA
+    {label:"Mensagens", href:"/mensagens", requireLogin:true},
+    {label:"Favoritos", href:"/favoritos", requireLogin:true}, 
 ];
 
 // ATUALIZE: Adicione Mensagens nas configurações do usuário

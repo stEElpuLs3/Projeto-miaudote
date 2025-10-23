@@ -10,6 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
 import axios from 'axios';
 import petPaws from '../../images/PetPaws.jpg';
+import FavoritoButton from '../FavoritoButton/FavoritoButton'; // IMPORT DO FAVORITO
 
 export default function PetCard({ pet }) {
   const [openModal, setOpenModal] = useState(false);
@@ -72,78 +73,68 @@ export default function PetCard({ pet }) {
   };
 
   const enviarInteresse = async () => {
-  if (!mensagem.trim()) {
-    alert('Por favor, digite uma mensagem');
-    return;
-  }
-
-  // DEBUG: Verificar o que é o user
-  console.log('DEBUG user (tipo):', typeof user);
-  console.log('DEBUG user (valor):', user);
-
-  setEnviando(true);
-  try {
-    // O user é apenas o ID do dono (string), não um objeto completo
-    const destinatarioId = user; // user já é o ID
-
-    if (!destinatarioId) {
-      alert('Erro: Não foi possível identificar o destinatário');
+    if (!mensagem.trim()) {
+      alert('Por favor, digite uma mensagem');
       return;
     }
 
-    console.log('Enviando para destinatario:', destinatarioId);
-    console.log('Remetente:', currentUser.id);
-    console.log('Pet:', _id);
-
-    // 1. Primeiro enviar a mensagem
-    await axios.post('http://localhost:3001/api/mensagens', {
-      remetente: currentUser.id,
-      destinatario: destinatarioId, // user já é o ID
-      pet: _id,
-      mensagem: mensagem,
-      tipo: 'interesse'
-    });
-
-    console.log('✅ Mensagem salva no banco');
-
-    // 2. Tentar enviar email (não crítico)
+    setEnviando(true);
     try {
-      const emailResponse = await axios.post('http://localhost:3001/api/email/interesse', {
-        petId: _id,
-        interessadoId: currentUser.id
+      // 1. Primeiro enviar a mensagem
+      await axios.post('http://localhost:3001/api/mensagens', {
+        remetente: currentUser.id,
+        destinatario: user, // user já é o ID
+        pet: _id,
+        mensagem: mensagem,
+        tipo: 'interesse'
       });
-      console.log('✅ Email enviado:', emailResponse.data);
-    } catch (emailError) {
-      console.log('⚠️ Email não enviado, mas mensagem salva:', emailError.message);
+
+      console.log('✅ Mensagem salva no banco');
+
+      // 2. Tentar enviar email (não crítico)
+      try {
+        const emailResponse = await axios.post('http://localhost:3001/api/email/interesse', {
+          petId: _id,
+          interessadoId: currentUser.id
+        });
+        console.log('✅ Email enviado:', emailResponse.data);
+      } catch (emailError) {
+        console.log('⚠️ Email não enviado, mas mensagem salva:', emailError.message);
+      }
+
+      setSucesso(true);
+      setMensagem('');
+
+      // Fechar modal após 2 segundos
+      setTimeout(() => {
+        setOpenMensagemModal(false);
+        setSucesso(false);
+        setOpenAdotarModal(false);
+      }, 2000);
+
+    } catch (error) {
+      console.error('❌ Erro ao enviar interesse:', error);
+      alert('Erro ao enviar mensagem: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setEnviando(false);
     }
-
-    setSucesso(true);
-    setMensagem('');
-
-    // Fechar modal após 2 segundos
-    setTimeout(() => {
-      setOpenMensagemModal(false);
-      setSucesso(false);
-      setOpenAdotarModal(false);
-    }, 2000);
-
-  } catch (error) {
-    console.error('❌ Erro ao enviar interesse:', error);
-    console.error('Detalhes do erro:', error.response?.data);
-    alert('Erro ao enviar mensagem: ' + (error.response?.data?.message || error.message));
-  } finally {
-    setEnviando(false);
-  }
-};
+  };
 
   return (
     <>
-      <Card sx={{ maxWidth: 345 }}>
+      {/* CARD PRINCIPAL */}
+      <Card sx={{ maxWidth: 345, position: 'relative' }}>
         <CardMedia
           sx={{ height: 140 }}
           image={mainImage}
           title={nome}
         />
+        
+        {/* BOTÃO FAVORITO NO CARD - POSIÇÃO 1 */}
+        <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 10 }}>
+          <FavoritoButton petId={_id} size="small" />
+        </Box>
+
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
             {nome}
@@ -166,7 +157,7 @@ export default function PetCard({ pet }) {
         </CardActions>
       </Card>
 
-      {/* Modal Ver Mais */}
+      {/* MODAL VER MAIS */}
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box sx={{
           position: 'absolute',
@@ -284,9 +275,14 @@ export default function PetCard({ pet }) {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <Typography variant="h6" gutterBottom>
-                Informações
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  Informações
+                </Typography>
+                
+                {/* BOTÃO FAVORITO NO MODAL - POSIÇÃO 2 */}
+                <FavoritoButton petId={_id} size="medium" />
+              </Box>
 
               <Box sx={{ mb: 2 }}>
                 <Chip label={especie} color="primary" sx={{ mr: 1, mb: 1 }} />
@@ -310,7 +306,7 @@ export default function PetCard({ pet }) {
                 </Button>
 
                 {/* Botão deletar - apenas para o dono */}
-                {currentUser && currentUser.id === user._id && (
+                {currentUser && currentUser.id === user && (
                   <Button
                     variant="outlined"
                     color="error"

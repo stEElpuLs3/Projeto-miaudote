@@ -8,6 +8,7 @@ import RegisterPet from './pages/RegisterPet';
 import SearchPets from './pages/SearchPets';
 import SuccessStories from './pages/SuccessStories';
 import Cadastro from './pages/Cadastro/Cadastro';
+import Favoritos from './pages/Favoritos';
 import LoginModal from './components/LoginModal/LoginModal';
 import Mensagens from './pages/Mensagens'; // Já está importado
 import './styles.css';
@@ -46,7 +47,7 @@ function App() {
           <Route path="/success-stories" element={<SuccessStories />} />
           <Route path="/cadastro-usuario" element={<Cadastro />} />
           <Route path="/logout" element={<LogOut />} />
-          {/* ADICIONE ESTA ROTA - Mensagens */}
+          <Route path="/favoritos" element={<Favoritos />} />
           <Route path="/mensagens" element={<Mensagens />} />
           <Route
             path="*"

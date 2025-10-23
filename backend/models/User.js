@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema({
     plataforma: String,
     usuario: String
   },
+  
   endereco: {
     cep: String,
     rua: String,
@@ -19,6 +20,10 @@ const UserSchema = new mongoose.Schema({
     estado: String
   },
   sobre: String,
+  favoritos: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Pet' 
+  }],
   historico: { type: Array, default: [] }
 }, { timestamps: true });
 
