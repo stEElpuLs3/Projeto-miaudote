@@ -5,17 +5,17 @@ import LoginModal from '../components/LoginModal/LoginModal'
 import Rufus from '../images/rufus.avif'
 import axios from 'axios';
 
-function Home({isOpenModal, setOpenModal}) {
+function Home({ isOpenModal, setOpenModal }) {
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Dados mockados dentro do useEffect para evitar recriações
     const petsMock = [
-      { 
-        _id: 1, 
-        nome: 'Fofinho', 
-        descricao: 'Gato muito carinhoso!', 
+      {
+        _id: 1,
+        nome: 'Fofinho',
+        descricao: 'Gato muito carinhoso!',
         fotos: ['https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKy5Zq3nDNcIKQEtTvd1iJTSzxQk4UO53QrA&s'],
         especie: 'gato',
         raca: 'SRD',
@@ -26,10 +26,10 @@ function Home({isOpenModal, setOpenModal}) {
           telefone: '(11) 99999-9999'
         }
       },
-      { 
-        _id: 2, 
-        nome: 'Rex', 
-        descricao: 'Cachorro brincalhão e esperto.', 
+      {
+        _id: 2,
+        nome: 'Rex',
+        descricao: 'Cachorro brincalhão e esperto.',
         fotos: ['https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTekrqEm8Pps8NR1x2kRA2N2WTL23Q9R9nVbw&s'],
         especie: 'cachorro',
         raca: 'Vira-lata',
@@ -40,17 +40,17 @@ function Home({isOpenModal, setOpenModal}) {
           telefone: '(11) 98888-8888'
         }
       },
-      { 
-        _id: 3, 
-        nome: 'Rufus', 
-        descricao: 'Cachorro dócil e amigável.', 
+      {
+        _id: 3,
+        nome: 'Rufus',
+        descricao: 'Cachorro dócil e amigável.',
         fotos: [Rufus],
-        especie: 'cachorro', 
+        especie: 'cachorro',
         raca: 'Labrador',
         idade: 4,
         user: {
           nome: 'Pedro Oliveira',
-          email: 'pedro@email.com', 
+          email: 'pedro@email.com',
           telefone: '(11) 97777-7777'
         }
       }
@@ -58,11 +58,15 @@ function Home({isOpenModal, setOpenModal}) {
 
     const fetchPets = async () => {
       try {
+        console.log('Fazendo requisição para API...');
         const response = await axios.get('http://localhost:3001/api/pets');
+        console.log('Resposta da API:', response.data);
         setPets(response.data);
       } catch (error) {
-        console.error('Erro ao buscar pets da API, usando dados mockados:', error);
-        setPets(petsMock); // Fallback para dados mockados
+        console.error('Erro completo:', error);
+        console.log('Status do erro:', error.response?.status);
+        console.log('Mensagem do erro:', error.response?.data);
+        setPets(petsMock);
       } finally {
         setLoading(false);
       }
@@ -86,11 +90,11 @@ function Home({isOpenModal, setOpenModal}) {
       <Typography variant="h4" component="h1" gutterBottom>
         Pets para Adoção
       </Typography>
-      
+
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: 'center' }}>
         {pets.map((pet) => (
-          <PetCard 
-            key={pet._id} 
+          <PetCard
+            key={pet._id}
             pet={pet}
           />
         ))}
