@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const upload = require('../middleware/upload');
 require('dotenv').config();
 
 const router = express.Router();
@@ -76,6 +77,49 @@ router.post('/login', async (req, res) => {
       message: "Erro no login", 
       error: error.message 
     });
+  }
+});
+
+// Rota para atualizar usuário
+router.put('/:id', upload.single('avatar'), async (req, res) => {
+  try {
+    const { nome, telefone, redeSocial, endereco, sobre } = req.body;
+    
+    const updateData = {
+      nome,
+      telefone,
+      redeSocial: redeSocial ? JSON.parse(redeSocial) : undefined,
+      endereco: endereco ? JSON.parse(endereco) : undefined,
+      sobre
+    };
+
+    // Se há nova imagem de avatar
+    if (req.file) {
+      updateData.avatar = `http://localhost:3001/uploads/${req.file.filename}`;
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: updateData },
+      { new: true }
+    );
+
+    res.json({ 
+      message: 'Perfil atualizado com sucesso!',
+      user: {
+        id: user._id,
+        nome: user.nome,
+        email: user.email,
+        telefone: user.telefone,
+        avatar: user.avatar,
+        redeSocial: user.redeSocial,
+        endereco: user.endereco,
+        sobre: user.sobre
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar usuário:', error);
+    res.status(500).json({ message: 'Erro ao atualizar perfil', error });
   }
 });
 

@@ -9,10 +9,9 @@ import SearchPets from './pages/SearchPets';
 import SuccessStories from './pages/SuccessStories';
 import Cadastro from './pages/Cadastro/Cadastro';
 import LoginModal from './components/LoginModal/LoginModal';
+import Mensagens from './pages/Mensagens'; // Já está importado
 import './styles.css';
 import './App.css';
-
-
 
 function App() {
   const LogOut = () => {
@@ -47,6 +46,8 @@ function App() {
           <Route path="/success-stories" element={<SuccessStories />} />
           <Route path="/cadastro-usuario" element={<Cadastro />} />
           <Route path="/logout" element={<LogOut />} />
+          {/* ADICIONE ESTA ROTA - Mensagens */}
+          <Route path="/mensagens" element={<Mensagens />} />
           <Route
             path="*"
             element={

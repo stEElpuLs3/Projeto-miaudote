@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const Mensagem = require('../models/Mensagem');
 const emailService = require('../services/emailService');
-const User = require('./usuarios').User; // Ajuste conforme seu arquivo
+const User = require('../models/User'); // CORREÇÃO: Importar do models
+const Pet = require('../models/Pet'); // Ajuste conforme seu arquivo
 
 // Enviar mensagem
 router.post('/', async (req, res) => {
@@ -23,9 +24,10 @@ router.post('/', async (req, res) => {
     
     // Popula os dados para retornar
     const mensagemPopulada = await Mensagem.findById(novaMensagem._id)
-      .populate('remetente', 'nome email avatar')
-      .populate('destinatario', 'nome email')
-      .populate('pet', 'nome fotos');
+      .populate('remetente', 'nome email avatar telefone redeSocial')
+      .populate('destinatario', 'nome email avatar telefone redeSocial')
+      .populate('pet', 'nome fotos especie raca');
+
 
     // Enviar email de notificação
     try {
@@ -80,6 +82,16 @@ router.put('/:id/lida', async (req, res) => {
     res.json({ message: 'Mensagem marcada como lida' });
   } catch (error) {
     res.status(500).json({ message: 'Erro ao atualizar mensagem', error });
+  }
+});
+
+// Rota para deletar mensagem
+router.delete('/:id', async (req, res) => {
+  try {
+    await Mensagem.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Mensagem excluída com sucesso' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao excluir mensagem', error });
   }
 });
 

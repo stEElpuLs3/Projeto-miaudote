@@ -72,53 +72,69 @@ export default function PetCard({ pet }) {
   };
 
   const enviarInteresse = async () => {
-    if (!mensagem.trim()) {
-      alert('Por favor, digite uma mensagem');
+  if (!mensagem.trim()) {
+    alert('Por favor, digite uma mensagem');
+    return;
+  }
+
+  // DEBUG: Verificar o que é o user
+  console.log('DEBUG user (tipo):', typeof user);
+  console.log('DEBUG user (valor):', user);
+
+  setEnviando(true);
+  try {
+    // O user é apenas o ID do dono (string), não um objeto completo
+    const destinatarioId = user; // user já é o ID
+
+    if (!destinatarioId) {
+      alert('Erro: Não foi possível identificar o destinatário');
       return;
     }
 
-    setEnviando(true);
+    console.log('Enviando para destinatario:', destinatarioId);
+    console.log('Remetente:', currentUser.id);
+    console.log('Pet:', _id);
+
+    // 1. Primeiro enviar a mensagem
+    await axios.post('http://localhost:3001/api/mensagens', {
+      remetente: currentUser.id,
+      destinatario: destinatarioId, // user já é o ID
+      pet: _id,
+      mensagem: mensagem,
+      tipo: 'interesse'
+    });
+
+    console.log('✅ Mensagem salva no banco');
+
+    // 2. Tentar enviar email (não crítico)
     try {
-      // 1. Primeiro enviar a mensagem
-      await axios.post('http://localhost:3001/api/mensagens', {
-        remetente: currentUser.id,
-        destinatario: user._id,
-        pet: _id,
-        mensagem: mensagem,
-        tipo: 'interesse'
+      const emailResponse = await axios.post('http://localhost:3001/api/email/interesse', {
+        petId: _id,
+        interessadoId: currentUser.id
       });
-
-      console.log('✅ Mensagem salva no banco');
-
-      // 2. Tentar enviar email (não crítico)
-      try {
-        const emailResponse = await axios.post('http://localhost:3001/api/email/interesse', {
-          petId: _id,
-          interessadoId: currentUser.id
-        });
-        console.log('✅ Email enviado:', emailResponse.data);
-      } catch (emailError) {
-        console.log('⚠️ Email não enviado, mas mensagem salva:', emailError.message);
-        // Não falha a operação se o email falhar
-      }
-
-      setSucesso(true);
-      setMensagem('');
-
-      // Fechar modal após 2 segundos
-      setTimeout(() => {
-        setOpenMensagemModal(false);
-        setSucesso(false);
-        setOpenAdotarModal(false);
-      }, 2000);
-
-    } catch (error) {
-      console.error('❌ Erro ao enviar interesse:', error);
-      alert('Erro ao enviar mensagem: ' + (error.response?.data?.message || error.message));
-    } finally {
-      setEnviando(false);
+      console.log('✅ Email enviado:', emailResponse.data);
+    } catch (emailError) {
+      console.log('⚠️ Email não enviado, mas mensagem salva:', emailError.message);
     }
-  };
+
+    setSucesso(true);
+    setMensagem('');
+
+    // Fechar modal após 2 segundos
+    setTimeout(() => {
+      setOpenMensagemModal(false);
+      setSucesso(false);
+      setOpenAdotarModal(false);
+    }, 2000);
+
+  } catch (error) {
+    console.error('❌ Erro ao enviar interesse:', error);
+    console.error('Detalhes do erro:', error.response?.data);
+    alert('Erro ao enviar mensagem: ' + (error.response?.data?.message || error.message));
+  } finally {
+    setEnviando(false);
+  }
+};
 
   return (
     <>

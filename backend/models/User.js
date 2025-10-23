@@ -7,6 +7,18 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   senha: { type: String, required: true },
   avatar: String,
+  redeSocial: {
+    plataforma: String,
+    usuario: String
+  },
+  endereco: {
+    cep: String,
+    rua: String,
+    numero: String,
+    cidade: String,
+    estado: String
+  },
+  sobre: String,
   historico: { type: Array, default: [] }
 }, { timestamps: true });
 

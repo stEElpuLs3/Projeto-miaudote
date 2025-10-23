@@ -14,14 +14,18 @@ import MenuItem from '@mui/material/MenuItem';
 import AppLogo from '../AppLogo/AppLogo';
 import { Stack } from '@mui/material';
 
+// ATUALIZE: Adicione Mensagens nas páginas (requireLogin: true)
 const paginas = [
     {label:"Cadastrar Pet", href:"/register-pet", requireLogin:true},
     {label:"Buscar Pets", href:"/search-pets", requireLogin:false},
     {label:"Adoções Concluídas", href:"/success-stories", requireLogin:false},
+    {label:"Mensagens", href:"/mensagens", requireLogin:true}, // NOVA PÁGINA
 ];
 
+// ATUALIZE: Adicione Mensagens nas configurações do usuário
 const configs = [
     {label:"Perfil", href:"/profile"},
+    {label:"Mensagens", href:"/mensagens"}, // NOVO ITEM NO MENU DO USUÁRIO
     {label:"Sair", href:"/logout"},
 ];
 
