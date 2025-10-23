@@ -36,29 +36,29 @@ function EditarPerfil({ open, onClose, user, onUserUpdate }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name.startsWith('redeSocial.')) {
       const field = name.split('.')[1];
       setUserData(prev => ({
         ...prev,
-        redeSocial: { 
-          ...prev.redeSocial, 
-          [field]: value 
+        redeSocial: {
+          ...prev.redeSocial,
+          [field]: value
         }
       }));
     } else if (name.startsWith('endereco.')) {
       const field = name.split('.')[1];
       setUserData(prev => ({
         ...prev,
-        endereco: { 
-          ...prev.endereco, 
-          [field]: value 
+        endereco: {
+          ...prev.endereco,
+          [field]: value
         }
       }));
     } else {
-      setUserData(prev => ({ 
-        ...prev, 
-        [name]: value 
+      setUserData(prev => ({
+        ...prev,
+        [name]: value
       }));
     }
   };
@@ -79,10 +79,18 @@ function EditarPerfil({ open, onClose, user, onUserUpdate }) {
       const formData = new FormData();
       formData.append('nome', userData.nome);
       formData.append('telefone', userData.telefone);
-      formData.append('redeSocial', JSON.stringify(userData.redeSocial));
-      formData.append('endereco', JSON.stringify(userData.endereco));
       formData.append('sobre', userData.sobre);
-      
+
+      // Envia campos individuais em vez de JSON stringify
+      formData.append('redeSocialPlataforma', userData.redeSocial.plataforma || '');
+      formData.append('redeSocialUsuario', userData.redeSocial.usuario || '');
+
+      formData.append('enderecoCep', userData.endereco.cep || '');
+      formData.append('enderecoRua', userData.endereco.rua || '');
+      formData.append('enderecoNumero', userData.endereco.numero || '');
+      formData.append('enderecoCidade', userData.endereco.cidade || '');
+      formData.append('enderecoEstado', userData.endereco.estado || '');
+
       if (avatarFile) {
         formData.append('avatar', avatarFile);
       }
@@ -96,7 +104,7 @@ function EditarPerfil({ open, onClose, user, onUserUpdate }) {
       const updatedUser = { ...user, ...response.data.user };
       localStorage.setItem('user', JSON.stringify(updatedUser));
       onUserUpdate(updatedUser);
-      
+
       onClose();
       alert('Perfil atualizado com sucesso!');
     } catch (error) {

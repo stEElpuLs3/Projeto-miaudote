@@ -83,15 +83,42 @@ router.post('/login', async (req, res) => {
 // Rota para atualizar usuário
 router.put('/:id', upload.single('avatar'), async (req, res) => {
   try {
-    const { nome, telefone, redeSocial, endereco, sobre } = req.body;
+    const { 
+      nome, 
+      telefone, 
+      sobre,
+      redeSocialPlataforma, 
+      redeSocialUsuario,
+      enderecoCep,
+      enderecoRua, 
+      enderecoNumero,
+      enderecoCidade,
+      enderecoEstado
+    } = req.body;
     
     const updateData = {
       nome,
       telefone,
-      redeSocial: redeSocial ? JSON.parse(redeSocial) : undefined,
-      endereco: endereco ? JSON.parse(endereco) : undefined,
-      sobre
+      sobre,
+      redeSocial: {
+        plataforma: redeSocialPlataforma || '',
+        usuario: redeSocialUsuario || ''
+      },
+      endereco: {
+        cep: enderecoCep || '',
+        rua: enderecoRua || '',
+        numero: enderecoNumero || '',
+        cidade: enderecoCidade || '',
+        estado: enderecoEstado || ''
+      }
     };
+
+    // Remove campos undefined
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] === undefined) {
+        delete updateData[key];
+      }
+    });
 
     // Se há nova imagem de avatar
     if (req.file) {
@@ -101,8 +128,12 @@ router.put('/:id', upload.single('avatar'), async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.params.id,
       { $set: updateData },
-      { new: true }
+      { new: true, runValidators: true }
     );
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
 
     res.json({ 
       message: 'Perfil atualizado com sucesso!',
@@ -119,7 +150,7 @@ router.put('/:id', upload.single('avatar'), async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao atualizar usuário:', error);
-    res.status(500).json({ message: 'Erro ao atualizar perfil', error });
+    res.status(500).json({ message: 'Erro ao atualizar perfil', error: error.message });
   }
 });
 
