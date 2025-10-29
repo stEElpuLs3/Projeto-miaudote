@@ -154,4 +154,67 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Rota para editar pet
+router.put('/:id', upload.array('images', 10), async (req, res) => {
+  try {
+    const { 
+      nome, especie, raca, idade, descricao,
+      cep, rua, numero, bairro, cidade, estado
+    } = req.body;
+
+    // Verifica se o pet existe
+    const pet = await Pet.findById(req.params.id);
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet não encontrado' });
+    }
+
+    // ATENÇÃO: Aqui você deve verificar se o usuário é o dono do pet
+    // const user = getUserFromToken(req); // Implementar autenticação
+    // if (pet.user.toString() !== user.id) {
+    //   return res.status(403).json({ message: 'Acesso negado' });
+    // }
+
+    // Construir dados de atualização
+    const updateData = {
+      nome,
+      especie,
+      raca,
+      idade,
+      descricao,
+      endereco: {
+        cep: cep || '',
+        rua: rua || '',
+        numero: numero || '',
+        bairro: bairro || '',
+        cidade: cidade || '',
+        estado: estado || ''
+      }
+    };
+
+    // Processar novas imagens
+    if (req.files && req.files.length > 0) {
+      const newImageUrls = req.files.map(file => 
+        `http://localhost:3001/uploads/${file.filename}`
+      );
+      updateData.fotos = [...pet.fotos, ...newImageUrls];
+    }
+
+    // Atualizar pet
+    const updatedPet = await Pet.findByIdAndUpdate(
+      req.params.id,
+      { $set: updateData },
+      { new: true }
+    ).populate('user', 'nome email telefone');
+
+    res.json({ 
+      message: 'Pet atualizado com sucesso!',
+      pet: updatedPet
+    });
+
+  } catch (error) {
+    console.error('Erro ao atualizar pet:', error);
+    res.status(500).json({ message: 'Erro ao atualizar pet', error });
+  }
+});
+
 module.exports = router;
