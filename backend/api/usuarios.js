@@ -68,13 +68,69 @@ router.post('/login', async (req, res) => {
       user: { 
         id: user._id,
         nome: user.nome, 
-        email: user.email 
+        email: user.email,
+        telefone: user.telefone,
+        avatar: user.avatar, // ← ADICIONADO AQUI
+        redeSocial: user.redeSocial,
+        endereco: user.endereco,
+        sobre: user.sobre,
+        favoritos: user.favoritos
       } 
     });
   } catch (error) {
     console.error('Erro completo no login:', error);
     res.status(500).json({ 
       message: "Erro no login", 
+      error: error.message 
+    });
+  }
+});
+
+// Rota específica para upload de avatar
+router.put('/:id/avatar', upload.single('avatar'), async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    if (!req.file) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Nenhuma imagem enviada' 
+      });
+    }
+    
+    // URL da imagem
+    const avatarUrl = `http://localhost:3001/uploads/${req.file.filename}`;
+    
+    // Atualizar apenas o campo avatar
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { avatar: avatarUrl },
+      { new: true, select: '-senha' } // Não retornar a senha
+    );
+    
+    if (!updatedUser) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Usuário não encontrado' 
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Avatar atualizado com sucesso!',
+      avatar: avatarUrl,
+      user: {
+        id: updatedUser._id,
+        nome: updatedUser.nome,
+        email: updatedUser.email,
+        avatar: updatedUser.avatar
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar avatar:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao atualizar avatar', 
       error: error.message 
     });
   }

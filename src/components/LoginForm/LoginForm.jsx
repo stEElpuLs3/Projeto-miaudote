@@ -10,25 +10,45 @@ export default function LoginForm({ onClose }) {
 
   const handleLogin = async () => {
   try {
-    console.log('Tentando login com:', { email, senha }); // ← Adicione este log
+    console.log('Tentando login com:', { email, senha });
     
     const response = await axios.post("http://localhost:3001/api/usuarios/login", {
       email: email,
-      senha: senha, // ← Certifique-se que é 'senha'
+      senha: senha,
     });
 
-    console.log('Resposta do login:', response.data); // ← Adicione este log
+    console.log('Resposta do login:', response.data);
 
     if (response.data && response.data.user) {
-      localStorage.setItem(
-        "user",
-        JSON.stringify({ ...response.data.user, logado: true, token: response.data.token })
-      );
+      // CRIAR OBJETO COMPLETO DO USUÁRIO
+      const userData = {
+        _id: response.data.user.id, // ID do MongoDB
+        name: response.data.user.nome,
+        email: response.data.user.email,
+        phone: response.data.user.telefone || '',
+        avatar: response.data.user.avatar || '', // ← AGORA INCLUÍDO
+        logado: true,
+        token: response.data.token,
+        favorites: response.data.user.favoritos || [],
+        socialMedia: response.data.user.redeSocial || {},
+        address: response.data.user.endereco || {},
+        about: response.data.user.sobre || ''
+      };
+      
+      console.log('Dados completos do usuário:', userData);
 
-      console.log('Usuário salvo no localStorage:', response.data.user);
+      // SALVAR NO LOCALSTORAGE
+      localStorage.setItem("user", JSON.stringify(userData));
+      
+      // DISPARAR EVENTO PARA ATUALIZAR NAVBAR
+      window.dispatchEvent(new Event('userLoggedIn'));
 
       if (onClose) onClose();
-      window.location.reload();
+      
+      // Redirecionar para home
+      window.location.href = "/";
+      // OU se preferir recarregar:
+      // window.location.reload();
     } else {
       setErro("Credenciais inválidas");
     }

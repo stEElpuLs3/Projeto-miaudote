@@ -26,13 +26,39 @@ const paginas = [
 // ATUALIZE: Adicione Mensagens nas configurações do usuário
 const configs = [
     {label:"Perfil", href:"/profile"},
-    {label:"Mensagens", href:"/mensagens"}, // NOVO ITEM NO MENU DO USUÁRIO
+    {label:"Mensagens", href:"/mensagens"},
     {label:"Sair", href:"/logout"},
 ];
 
 export default function NavBar({isOpenModal, setOpenModal}) {
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
+    const [user, setUser] = React.useState(() => {
+        // Carregar usuário do localStorage inicialmente
+        const saved = localStorage.getItem("user");
+        return saved ? JSON.parse(saved) : null;
+    });
+
+    // Efeito para atualizar quando o usuário faz login/logout
+    React.useEffect(() => {
+        const handleStorageChange = () => {
+            const savedUser = localStorage.getItem("user");
+            setUser(savedUser ? JSON.parse(savedUser) : null);
+        };
+        
+        // Ouvir eventos de login
+        window.addEventListener('userLoggedIn', handleStorageChange);
+        window.addEventListener('userAvatarUpdated', handleStorageChange);
+        
+        // Ouvir mudanças no localStorage (de outras abas)
+        window.addEventListener('storage', handleStorageChange);
+        
+        return () => {
+            window.removeEventListener('userLoggedIn', handleStorageChange);
+            window.removeEventListener('userAvatarUpdated', handleStorageChange);
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -49,7 +75,11 @@ export default function NavBar({isOpenModal, setOpenModal}) {
         setAnchorElUser(null);
     };
 
-    const user = JSON.parse(localStorage.getItem("user"));
+    const handleLogout = () => {
+        localStorage.removeItem("user");
+        setUser(null);
+        window.location.href = "/";
+    };
 
     return (
         <AppBar position="fixed">
@@ -95,7 +125,7 @@ export default function NavBar({isOpenModal, setOpenModal}) {
                             sx={{ display: { xs: 'block', md: 'none' } }}
                         >
                             {paginas.map(({label, href, requireLogin}, index) => (
-                                (requireLogin && !(user && user.logado)) ? <></> :
+                                (requireLogin && !(user && user.logado)) ? <React.Fragment key={index}></React.Fragment> :
                                 <MenuItem key={index} onClick={handleCloseNavMenu}>
                                     <Button
                                         sx={{ textAlign: 'center' }}
@@ -125,7 +155,7 @@ export default function NavBar({isOpenModal, setOpenModal}) {
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {paginas.map(({label, href, requireLogin}, index) => (
-                            (requireLogin && !(user && user.logado)) ? <></> :
+                            (requireLogin && !(user && user.logado)) ? <React.Fragment key={index}></React.Fragment> :
                             <Button
                                 key={index}
                                 onClick={handleCloseNavMenu}
@@ -140,9 +170,21 @@ export default function NavBar({isOpenModal, setOpenModal}) {
                     <Box>
                         {
                             (user && user.logado) ? (
-                                <Tooltip title="Usuário">
+                                <Tooltip title="Abrir menu do usuário">
                                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                        <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                                        <Avatar 
+                                            alt={user.name || "Usuário"} 
+                                            src={user.avatar || ""}
+                                            sx={{ 
+                                                width: 42, 
+                                                height: 42,
+                                                bgcolor: !user.avatar ? 'primary.light' : 'transparent',
+                                                border: '2px solid rgba(255,255,255,0.8)'
+                                            }}
+                                        >
+                                            {/* Mostra inicial se não tiver foto */}
+                                            {!user.avatar && user.name && user.name.charAt(0).toUpperCase()}
+                                        </Avatar>
                                     </IconButton>
                                 </Tooltip>
                             ) : (
@@ -169,18 +211,33 @@ export default function NavBar({isOpenModal, setOpenModal}) {
                             open={Boolean(anchorElUser)}
                             onClose={handleCloseUserMenu}
                         >
-                            {configs.map(({label, href}, index) => (
-                                <MenuItem key={index} onClick={handleCloseUserMenu}>
-                                    <Typography
-                                        sx={{ textAlign: 'center', textDecoration: 'none' }}
-                                        component="a"
-                                        color='inherit'
-                                        href={href}
-                                    >
-                                        {label}
-                                    </Typography>
-                                </MenuItem>
-                            ))}
+                            {configs.map(({label, href}, index) => {
+                                if (label === "Sair") {
+                                    return (
+                                        <MenuItem key={index} onClick={() => {
+                                            handleCloseUserMenu();
+                                            handleLogout();
+                                        }}>
+                                            <Typography sx={{ textAlign: 'center', color: 'error.main' }}>
+                                                {label}
+                                            </Typography>
+                                        </MenuItem>
+                                    );
+                                }
+                                
+                                return (
+                                    <MenuItem key={index} onClick={handleCloseUserMenu}>
+                                        <Typography
+                                            sx={{ textAlign: 'center', textDecoration: 'none' }}
+                                            component="a"
+                                            color='inherit'
+                                            href={href}
+                                        >
+                                            {label}
+                                        </Typography>
+                                    </MenuItem>
+                                );
+                            })}
                         </Menu>
                     </Box>
                 </Toolbar>
